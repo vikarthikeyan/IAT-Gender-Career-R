@@ -22,7 +22,7 @@ clean_data <- function(year) {
   
   ## to optimize, first reduce the number of variables...
   iat <- iat[c("session_id", "session_status", "date", "year", "month", "day", "birthyear",
-                 "birthsex", "genderidentity","D_biep.Male_Career_all", "countrycit_num", 
+                 "birthSex", "genderIdentity","D_biep.Male_Career_all", "countrycit_num", 
                  "countryres_num","ethnicityomb","raceomb_002")]
 
   # convert date to ISO format
@@ -31,16 +31,9 @@ clean_data <- function(year) {
   
   # Get only completed entries
   iat <- iat[iat$session_status=="C   ",] 
-  
-  # First fuse ambiguous columns, god this is painful
-  if("sex" %in% colnames(iat) & "birthsex" %in% colnames(iat)) {
-    print("BOTH")
-    iat$birthsex <- factor(iat$birthsex, labels = c("Male", "Female"))
-    iat$sex <- with(iat, coalesce(sex, factor(birthsex)))
-  } else {
-    iat$sex <- iat$birthsex
-  }
-  
+
+  iat$sex <- iat$birthSex
+
   iat <- iat[is.na(iat$sex)==FALSE,,]
   
   # Remove those entries in which important fields are not present - Race, Ethnicity, Gender
@@ -70,7 +63,7 @@ clean_data <- function(year) {
 }
 
 
-result <- clean_data(2017)
+result <- clean_data(2018)
 
 write.csv(result, file = "/Users/vikramkarthikeyan/Documents/Kenny/IAT-Gender-Career-R/dataset/2018.csv")
 
