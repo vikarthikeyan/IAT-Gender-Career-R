@@ -13,6 +13,7 @@ require(pastecs)
 library("dplyr")
 
 clean_data <- function(year) {
+  year=2016
   file_name <- paste("/Users/vikramkarthikeyan/Documents/Kenny/IAT-Gender-Career-R/dataset/sav/", year, sep="")
   file_name <- paste(file_name, ".sav", sep="")
   
@@ -25,6 +26,8 @@ clean_data <- function(year) {
   iat <- iat[c("session_id", "session_status", "date", "year", "month", "day" ,"age", "birthyear",
                  "sex", "birthsex", "genderidentity","D_biep.Male_Career_all", "countrycit", 
                  "countryres","ethnicityomb",  "raceomb", "raceomb_002")]
+  
+  iat.population <- aggregate( birthyear ~ month + year , iat , mean )
 
   # convert date to ISO format
   iat$date <- as.chron(ISOdate(1582, 10, 14) + iat$date) 
@@ -76,41 +79,35 @@ clean_data <- function(year) {
   iat <- iat[iat$countryres=="US",]
   
   ## change birthyear to age------------
-
-  table(iat$birthyear, iat$year) # this one picks up...
-  table(iat$birthyear) # only uses real year values...
   
-  iat$birthyear.new <- 2016 - iat$birthyear
+  # Problem with birthyear, they have accidentally added age also, filter this pain out. 
+  indices <- (iat$date > as.Date("2016-05-19"))
+  indices <- replace(indices, is.na(indices), FALSE)
   
-  table(iat$birthyear.new)
+  iat$age.temp[indices] <- iat$birthyear[indices]
+  
+  indices <- (iat$age.temp > 1800)
+  indices <- replace(indices, is.na(indices), FALSE)
+  
+  iat$age.temp[indices] <- (year - iat$age.temp)[indices]
   
   ## now combine
-  iat$age.new <- paste(iat$age, iat$birthyear.new)
-  
-  table(iat$age.new)
-  iat$age.new <- gsub("NA ", "", iat$age.new)
-  iat$age.new <- gsub(" NA", "", iat$age.new)
-  
-  iat$age.new <- factor(iat$age.new)
+  iat$age.temp <- paste(iat$age, iat$age.temp)
 
-  iat$age.new <- factor(iat$age.new, levels = c(6:100))
-  iat$age.new <- droplevels(iat$age.new)
+  iat$age.temp <- gsub("NA ", "", iat$age.temp)
+  iat$age.temp <- gsub(" NA", "", iat$age.temp)
   
-  table(iat$age.new)
+  iat$age.temp <- as.character(iat$age.temp)
+  iat$age.temp <- as.numeric(iat$age.temp)
   
-  iat$age.new <- as.character(iat$age.new)
-  iat$age.new <- as.numeric(iat$age.new)
-  
-  table(iat$age.new[iat$age.new>25], iat$month[iat$age.new>25]) # complete data
-  
-  iat$age <- iat$age.new
+  iat$age <- iat$age.temp
  
   return(iat)
 }
 
 result <- clean_data(2016)
 
-result <- subset(result, select = -c(birthyear, birthsex, genderidentity, birthyear.new, age.new, raceomb_002))
+result <- subset(result, select = -c(birthyear, birthsex, genderidentity, age.temp, raceomb_002))
 
 write.csv(result, file = "/Users/vikramkarthikeyan/Documents/Kenny/IAT-Gender-Career-R/dataset/2016.csv")
 
