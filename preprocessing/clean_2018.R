@@ -32,8 +32,8 @@ clean_data <- function(year) {
   # Get only completed entries
   iat <- iat[iat$session_status=="C   ",] 
 
+  iat$birthSex <- factor(iat$birthSex, labels = c("Male", "Female"))
   iat$sex <- iat$birthSex
-
   iat <- iat[is.na(iat$sex)==FALSE,,]
   
   # Remove those entries in which important fields are not present - Race, Ethnicity, Gender
@@ -64,6 +64,10 @@ clean_data <- function(year) {
 
 
 result <- clean_data(2018)
+
+colnames(result)[colnames(result)=="raceomb_002"] <- "raceomb"
+
+result <- subset(result, select = -c(birthyear, birthSex, genderIdentity, countrycit_num, countryres_num))
 
 write.csv(result, file = "/Users/vikramkarthikeyan/Documents/Kenny/IAT-Gender-Career-R/dataset/2018.csv")
 

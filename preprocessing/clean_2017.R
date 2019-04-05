@@ -13,6 +13,7 @@ require(pastecs)
 library("dplyr")
 
 clean_data <- function(year) {
+  year=2017
   file_name <- paste("/Users/vikramkarthikeyan/Documents/Kenny/IAT-Gender-Career-R/dataset/sav/", year, sep="")
   file_name <- paste(file_name, ".sav", sep="")
   
@@ -31,16 +32,9 @@ clean_data <- function(year) {
   
   # Get only completed entries
   iat <- iat[iat$session_status=="C   ",] 
-  
-  # First fuse ambiguous columns, god this is painful
-  if("sex" %in% colnames(iat) & "birthsex" %in% colnames(iat)) {
-    print("BOTH")
-    iat$birthsex <- factor(iat$birthsex, labels = c("Male", "Female"))
-    iat$sex <- with(iat, coalesce(sex, factor(birthsex)))
-  } else {
-    iat$sex <- iat$birthsex
-  }
-  
+
+  iat$birthsex <- factor(iat$birthsex, labels = c("Male", "Female"))
+  iat$sex <- iat$birthsex
   iat <- iat[is.na(iat$sex)==FALSE,,]
   
   # Remove those entries in which important fields are not present - Race, Ethnicity, Gender
@@ -72,7 +66,11 @@ clean_data <- function(year) {
 
 result <- clean_data(2017)
 
-write.csv(result, file = "/Users/vikramkarthikeyan/Documents/Kenny/IAT-Gender-Career-R/dataset/2018.csv")
+colnames(result)[colnames(result)=="raceomb_002"] <- "raceomb"
+
+result <- subset(result, select = -c(birthyear, birthsex, genderidentity, countrycit_num, countryres_num))
+
+write.csv(result, file = "/Users/vikramkarthikeyan/Documents/Kenny/IAT-Gender-Career-R/dataset/2017.csv")
 
 
 

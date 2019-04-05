@@ -110,6 +110,8 @@ clean_data <- function(year) {
 
 result <- clean_data(2016)
 
+result <- subset(result, select = -c(birthyear, birthsex, genderidentity, birthyear.new, age.new, raceomb_002))
+
 write.csv(result, file = "/Users/vikramkarthikeyan/Documents/Kenny/IAT-Gender-Career-R/dataset/2016.csv")
 
 
