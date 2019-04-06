@@ -67,7 +67,19 @@ plot( iat.timeseries$date, iat.timeseries$D_biep.Male_Career_all, type="l", col=
 par(new=TRUE)
 plot( iat.timeseries$date, iat.timeseries$femaleratio, type="l", col="green", ylab="IAT score & Female Ratio", replace=TRUE )
 
-write.csv(iat.timeseries, file = "/Users/vikramkarthikeyan/Documents/Kenny/IAT-Gender-Career-R/dataset/monthly-aggregated.csv")
+write.csv(iat.timeseries, file = "/Users/vikramkarthikeyan/Documents/Kenny/IAT-Gender-Career-R/dataset/aggregated/monthly-aggregated-overall.csv")
+
+iat.training <- subset(iat.timeseries, iat.timeseries$date < as.Date("2016-01-01"))
+iat.testing <- subset(iat.timeseries, iat.timeseries$date < as.Date("2018-01-01") & iat.timeseries$date > as.Date("2015-12-01"))
+iat.truevalidation <- subset(iat.timeseries, iat.timeseries$date > as.Date("2017-12-01"))
+
+write.csv(iat.training, file = "/Users/vikramkarthikeyan/Documents/Kenny/IAT-Gender-Career-R/dataset/aggregated/training.csv")
+write.csv(iat.testing, file = "/Users/vikramkarthikeyan/Documents/Kenny/IAT-Gender-Career-R/dataset/aggregated/testing.csv")
+write.csv(iat.truevalidation, file = "/Users/vikramkarthikeyan/Documents/Kenny/IAT-Gender-Career-R/dataset/aggregated/truevalidation.csv")
+
+
+
+
 
 
 
