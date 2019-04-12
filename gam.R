@@ -10,52 +10,31 @@ library(logspline)
 library(mgcv)
 library(nlme)
 
+data = read.csv("/Users/vikramkarthikeyan/Documents/Kenny/IAT-Gender-Career-R/dataset/cleaned-2007-2017.csv", header = TRUE)
 
-training = read.csv("/Users/vikramkarthikeyan/Documents/Kenny/IAT-Gender-Career-R/dataset/aggregated/training.csv", header = TRUE)
+data$date <- as.numeric(data$date)
 
-x <- training$D_biep.Male_Career_all
-
-# Understand the data distribution
-plotdist(training$D_biep.Male_Career_all, histo = TRUE, demp = TRUE)
-
-# Shows that distribution is close to Weibull, Gamma, lognormal
-descdist(x, boot=500)
-
-# Check how the data fits the mentioned distributions
-fw <- fitdist(training$D_biep.Male_Career_all, "weibull")
-fg <- fitdist(training$D_biep.Male_Career_all, "gamma")
-fl <- fitdist(training$D_biep.Male_Career_all, "lnorm")
-par(mfrow = c(2, 2))
-plot.legend <- c("Weibull", "gamma", "log normal")
-denscomp(list(fw, fg, fl), legendtext = plot.legend)
-qqcomp(list(fw, fg, fl), legendtext = plot.legend)
-cdfcomp(list(fw, fg, fl), legendtext = plot.legend)
-ppcomp(list(fw, fg, fl), legendtext = plot.legend)
-
-# Weibull seems like a good fit as it has the lowest goodness-of-fit characteristics
-gofstat(list(fw,fg,fl))
-
-training$date <- as.numeric(training$date)
-
-# Fit a straightforward gam by smoothing only time now
-model1 <- gamm(D_biep.Male_Career_all ~ s(date), data = training)
+# Fit a gam by smoothing only time
+model_time <- gam(D_biep.Male_Career_all ~ s(date), data = data)
 
 layout(matrix(1:2, ncol = 2))
-plot(model1$gam, scale = 0)
+plot(model_time, scale = 0)
 
-# Fit a gam by smoothing both time and age
-model2 <- gam(D_biep.Male_Career_all ~ s(date) + s(age), data = training)
-
-layout(matrix(1:2, ncol = 2))
-plot(model2$gam, scale = 0)
-
+# Fit a gam by smoothing time and age
+model_time_age <- gam(D_biep.Male_Career_all ~ s(date) + s(age, k=108), data = data)
 
 layout(matrix(1:2, ncol = 2))
-acf(resid(mmodel1$lme), lag.max = 36, main = "ACF")
-pacf(resid(model1$lme), lag.max = 36, main = "pACF")
-layout(1)
+plot(model_time_age, scale = 0)
 
+# Fit both
+library(data.table)
+datas <- rbindlist(list(data.table(value = data$D_biep.Male_Career_all, data_time = data$date), data.table(value = model_time_age$fitted.values,
+                                                                      data_time = data$date)))
 
+datas[, type := c(rep("Real", nrow(data)), rep("Fitted", nrow(data)))]
 
-
-
+ggplot(data = datas, aes(data_time, value, group = type, colour = type)) +
+  geom_line(size = 0.8) +
+  theme_bw() +
+  labs(x = "Time", y = "IAT scores",
+       title = "Fit from GAM n.1")
