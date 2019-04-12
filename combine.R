@@ -21,13 +21,13 @@ iat.2007_2015 <- iat.2007_2015[c("session_id", "session_status", "date", "year",
 
 iat.2016 = read.csv("/Users/vikramkarthikeyan/Documents/Kenny/IAT-Gender-Career-R/dataset/2016.csv", header = TRUE)
 iat.2017 = read.csv("/Users/vikramkarthikeyan/Documents/Kenny/IAT-Gender-Career-R/dataset/2017.csv", header = TRUE)
-iat.2018 = read.csv("/Users/vikramkarthikeyan/Documents/Kenny/IAT-Gender-Career-R/dataset/2018.csv", header = TRUE)
+#iat.2018 = read.csv("/Users/vikramkarthikeyan/Documents/Kenny/IAT-Gender-Career-R/dataset/2018.csv", header = TRUE)
 
 iat.2007_2016 <- bind_rows(iat.2007_2015, iat.2016)
 iat.2007_2017 <- bind_rows(iat.2007_2016, iat.2017)
-iat.2007_2018 <- bind_rows(iat.2007_2017, iat.2018)
+#iat.2007_2018 <- bind_rows(iat.2007_2017, iat.2018)
 
-write.csv(iat.2007_2018, file = "/Users/vikramkarthikeyan/Documents/Kenny/IAT-Gender-Career-R/dataset/cleaned-2007-2018.csv")
+write.csv(iat.2007_2017, file = "/Users/vikramkarthikeyan/Documents/Kenny/IAT-Gender-Career-R/dataset/cleaned-2007-2017.csv")
 
 
 

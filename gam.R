@@ -1,10 +1,15 @@
 ## Installing required packages
 install.packages("fitdistrplus", dependencies = TRUE) 
 install.packages("logspline", dependencies = TRUE) 
+install.packages("mgcv", dependencies = TRUE) 
+install.packages("nlme", dependencies = TRUE) 
 
 ## Loading required packages
 library(fitdistrplus)
 library(logspline)
+library(mgcv)
+library(nlme)
+
 
 training = read.csv("/Users/vikramkarthikeyan/Documents/Kenny/IAT-Gender-Career-R/dataset/aggregated/training.csv", header = TRUE)
 
@@ -29,6 +34,26 @@ ppcomp(list(fw, fg, fl), legendtext = plot.legend)
 
 # Weibull seems like a good fit as it has the lowest goodness-of-fit characteristics
 gofstat(list(fw,fg,fl))
+
+training$date <- as.numeric(training$date)
+
+# Fit a straightforward gam by smoothing only time now
+model1 <- gamm(D_biep.Male_Career_all ~ s(date), data = training)
+
+layout(matrix(1:2, ncol = 2))
+plot(model1$gam, scale = 0)
+
+# Fit a gam by smoothing both time and age
+model2 <- gam(D_biep.Male_Career_all ~ s(date) + s(age), data = training)
+
+layout(matrix(1:2, ncol = 2))
+plot(model2$gam, scale = 0)
+
+
+layout(matrix(1:2, ncol = 2))
+acf(resid(mmodel1$lme), lag.max = 36, main = "ACF")
+pacf(resid(model1$lme), lag.max = 36, main = "pACF")
+layout(1)
 
 
 
