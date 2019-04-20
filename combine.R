@@ -16,7 +16,7 @@ iat.2007_2015 = read.csv("/Users/vikramkarthikeyan/Documents/Kenny/IAT-Gender-Ca
 
 iat.2007_2015 <- iat.2007_2015[c("session_id", "session_status", "date", "year", "month", "day", "age",
              "sex","D_biep.Male_Career_all", "countrycit", 
-             "countryres","ethnicityomb","raceomb")]
+             "countryres","ethnicityomb","raceomb", "hour")]
 
 
 iat.2016 = read.csv("/Users/vikramkarthikeyan/Documents/Kenny/IAT-Gender-Career-R/dataset/2016.csv", header = TRUE)
@@ -26,6 +26,13 @@ iat.2017 = read.csv("/Users/vikramkarthikeyan/Documents/Kenny/IAT-Gender-Career-
 iat.2007_2016 <- bind_rows(iat.2007_2015, iat.2016)
 iat.2007_2017 <- bind_rows(iat.2007_2016, iat.2017)
 #iat.2007_2018 <- bind_rows(iat.2007_2017, iat.2018)
+
+iat.2007_2017 <- iat.2007_2017[is.na(iat.2007_2017$age)==FALSE,]
+iat.2007_2017 <- iat.2007_2017[is.na(iat.2007_2017$sex)==FALSE,]
+
+# Filter samples with age 18-80
+iat.2007_2017 <- iat.2007_2017[iat.2007_2017$age > 17, ]
+iat.2007_2017 <- iat.2007_2017[iat.2007_2017$age < 81, ]
 
 write.csv(iat.2007_2017, file = "/Users/vikramkarthikeyan/Documents/Kenny/IAT-Gender-Career-R/dataset/cleaned-2007-2017.csv")
 
