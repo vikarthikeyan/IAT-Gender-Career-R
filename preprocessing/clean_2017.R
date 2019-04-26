@@ -51,9 +51,10 @@ clean_data <- function(year) {
   iat$countryres <- factor(iat$countryres_num)
   iat$countryres <- gsub(" ", "", iat$countryres)
   
+  iat <- iat[iat$countrycit=="U.S.A.",]
+  iat <- iat[iat$countryres=="U.S.A.",]
 
   ## change birthyear to age------------
-
   table(iat$birthyear, iat$year) # this one picks up...
   table(iat$birthyear) # only uses real year values...
   

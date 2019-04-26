@@ -24,6 +24,7 @@ iat.2017 = read.csv("/Users/vikramkarthikeyan/Documents/Kenny/IAT-Gender-Career-
 #iat.2018 = read.csv("/Users/vikramkarthikeyan/Documents/Kenny/IAT-Gender-Career-R/dataset/2018.csv", header = TRUE)
 
 iat.2007_2016 <- bind_rows(iat.2007_2015, iat.2016)
+iat.2017 <- within(iat.2017, rm(X))
 iat.2007_2017 <- bind_rows(iat.2007_2016, iat.2017)
 #iat.2007_2018 <- bind_rows(iat.2007_2017, iat.2018)
 
