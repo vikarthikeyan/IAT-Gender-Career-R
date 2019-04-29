@@ -15,6 +15,13 @@ data = read.csv("/Users/vikramkarthikeyan/Documents/Kenny/IAT-Gender-Career-R/da
 
 data$date <- as.numeric(data$date)
 
+# Fit along with gender
+data$sex <- gsub("Male", 1, data$sex)
+data$sex <- gsub("Female", 2, data$sex)
+data$sex <- as.numeric(data$sex)
+
+####################################
+
 # Fit a gam by smoothing only time
 model_time <- gam(D_biep.Male_Career_all ~ s(date), data = data)
 
@@ -39,10 +46,7 @@ plot(model_time_age, scale = 0, shade=TRUE)
 #Check AIC
 AIC(model_time_age_reml)
 
-# Fit along with gender
-data$sex <- gsub("Male", 1, data$sex)
-data$sex <- gsub("Female", 2, data$sex)
-data$sex <- as.numeric(data$sex)
+################# Best model till now###################
 
 model_time_age_sex <- gam(D_biep.Male_Career_all ~ s(date) + s(age, by=sex), select=TRUE, method='GCV.Cp', data = data)
 
