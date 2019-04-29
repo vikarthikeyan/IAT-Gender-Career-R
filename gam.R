@@ -48,10 +48,17 @@ AIC(model_time_age_reml)
 
 ################# Best model till now###################
 
-model_time_age_sex <- gam(D_biep.Male_Career_all ~ s(date) + s(age, by=sex), select=TRUE, method='GCV.Cp', data = data)
+model_time_age_sex <- gam(D_biep.Male_Career_all ~ s(date) + s(age) + sex, select=TRUE, method='GCV.Cp', data = data)
 
 layout(matrix(1:2, ncol = 2))
 plot(model_time_age_sex, scale = 0, shade=TRUE)
 
+################ Model that compensates for seasonality ################
+# Cyclic cubic spline function to accomodate Dec-Jan smooth transition
+# 12 knots for 12 months
+model_time_age_sex_month <- gam(D_biep.Male_Career_all ~ s(date) + s(age) + s(month, bs = "cc", k = 12) + sex, select=TRUE, method='GCV.Cp', data = data)
+
+layout(matrix(1:2, ncol = 2))
+plot(model_time_age_sex_month, scale = 0, shade=TRUE)
 
 
