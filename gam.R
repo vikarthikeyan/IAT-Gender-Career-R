@@ -48,6 +48,7 @@ AIC(model_time_age_reml)
 
 ################# Best model till now###################
 
+data$scaled <- scale(data$D_biep.Male_Career_all)[,]
 model_time_age_sex <- gam(D_biep.Male_Career_all ~ s(date) + s(age) + sex, select=TRUE, method='GCV.Cp', data = data)
 
 layout(matrix(1:2, ncol = 2))
@@ -58,7 +59,10 @@ plot(model_time_age_sex, scale = 0, shade=TRUE)
 # 12 knots for 12 months
 model_time_age_sex_month <- gam(D_biep.Male_Career_all ~ s(date) + s(age) + s(month, bs = "cc", k = 12) + sex, select=TRUE, method='GCV.Cp', data = data)
 
-layout(matrix(1:2, ncol = 2))
+par(mfrow= c(3,1))
 plot(model_time_age_sex_month, scale = 0, shade=TRUE)
 
+## Experimentation
+
+model_time_age_sex_month <- gam(D_biep.Male_Career_all ~ s(date) + s(age) + s(month, bs = "cc", k = 12) + sex, select=TRUE, method='GCV.Cp', data = data)
 
