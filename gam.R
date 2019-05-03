@@ -59,10 +59,12 @@ plot(model_time_age_sex, scale = 0, shade=TRUE)
 # 12 knots for 12 months
 model_time_age_sex_month <- gam(D_biep.Male_Career_all ~ s(date) + s(age) + s(month, bs = "cc", k = 12) + sex, select=TRUE, method='GCV.Cp', data = data)
 
-par(mfrow= c(3,1))
+par(mfrow= c(2,1))
 plot(model_time_age_sex_month, scale = 0, shade=TRUE)
 
 ## Experimentation
 
-model_time_age_sex_month <- gam(D_biep.Male_Career_all ~ s(date) + s(age) + s(month, bs = "cc", k = 12) + sex, select=TRUE, method='GCV.Cp', data = data)
+model_time_age_sex_month_state <- gam(D_biep.Male_Career_all ~ s(date) + s(age, by=STATE) + s(month, bs = "cc", k = 12) + sex, select=TRUE, method='GCV.Cp', data = data)
 
+par(mfrow= c(3,1))
+plot(model_time_age_sex_month, scale = 0, shade=TRUE)
