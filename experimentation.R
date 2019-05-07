@@ -33,8 +33,17 @@ plot(model_time_age_sex_month, scale = 0, shade=TRUE)
 
 model_time_age_sex_month_state <- gam(D_biep.Male_Career_all ~ s(date, by=STATE) + s(age) + s(month, bs = "cc", k = 12) + sex, select=TRUE, method='GCV.Cp', data = data)
 
-par(mfrow= c(5,2))
-plot(model_time_age_sex_month_state, scale = 0, shade=TRUE)
+#par(mfrow= c(1,1))
+#plot(model_time_age_sex_month_state, scale = 0, shade=TRUE)
+#plot(model_time_age_sex_month_state, shade=TRUE, select=3)
+
+#visreg(model_time_age_sex_month_state)
+visreg(model_time_age_sex_month_state, "date", "STATE", gg=TRUE, collapse=TRUE, overlay=TRUE, ylab="IAT Score")
+
+
+
+
+
 
 
 
