@@ -4,19 +4,16 @@ install.packages("logspline", dependencies = TRUE)
 install.packages("mgcv", dependencies = TRUE) 
 install.packages("nlme", dependencies = TRUE)
 install.packages("voxel", dependencies = TRUE)
-install.packages("remotes")
-remotes::install_github("mfasiolo/mgcViz", dependencies = TRUE)
+install.packages("plyr", dependencies = TRUE)
 
 ## Loading required packages
 library(fitdistrplus)
 library(logspline)
 library(mgcv)
 library(nlme)
-library(visreg)
-library(mgcViz)
 library(ggplot2)
 library(voxel)
-
+library(plyr)
 
 data = read.csv("/Users/vikramkarthikeyan/Documents/Kenny/IAT-Gender-Career-R/dataset/cleaned-2007-2017.csv", header = TRUE)
 
@@ -38,52 +35,90 @@ model_time_age_sex_month <- gam(D_biep.Male_Career_all ~ s(date) + s(age) + s(mo
 par(mfrow= c(2,1))
 plot(model_time_age_sex_month, scale = 0, shade=TRUE)
 
-################ Model with state-wise filters ####################
+################ Model with state-wise filters for all 50 states + DC ####################
 
 model <- gam(D_biep.Male_Career_all ~ STATE + s(date) + s(date, by=STATE) + s(age) + s(month, bs = "cc", k = 12) + sex, select=TRUE, method='GCV.Cp', data = data)
 
+# Individual plot
 plot(model, shade = TRUE, shade.col = "lightblue", scale = 0)
 
 # state-wise plot
 par(mfrow= c(1,1))
 state_wise_smooth <- plotGAM(gamFit = model, smooth.cov = "date", groupCovs = "STATE", plotCI=F)
 
-# Get all additive values
-pp <- predict(model, type = "terms")
-predicted_outputs <- as.data.frame(pp)
-predicted_outputs$predicted <- rowSums(predicted_outputs[,-1])
-predicted_outputs$actual <- data$D_biep.Male_Career_all
-write.csv(predicted_outputs, file = "/Users/vikramkarthikeyan/Documents/Kenny/IAT-Gender-Career-R/results/additive_values.csv")
+################# Region-wise models based on US census regions ################
 
+northeast_states <- c('Maine', 'New Hampshire', 'Vermont', 'Massachusetts', 'Rhode Island', 'Connecticut', 'New York', 'New Jersey', 'Pennsylvania')
+midwest_states <- c('Ohio', 'Michigan', 'Indiana', 'Wisconsin', 'Illinois', 'Minnesota', 'Iowa', 'Missouri', 'North Dakota', 'South Dakota', 'Nebraska', 'Kansas')
+south_states <- c('Delaware', 'Maryland', 'Virginia', 'West Virginia', 'Kentucky', 'North Carolina', 'South Carolina', 'Tennessee', 'Georgia', 'Florida', 'Alabama', 'Mississippi', 'Arkansas', 'Louisiana', 'Texas', 'Oklahoma')
+west_states <- c('Montana', 'Idaho', 'Wyoming', 'Colorado', 'New Mexico', 'Arizona', 'Utah', 'Nevada', 'California', 'Oregon', 'Washington', 'Alaska', 'Hawaii')
 
-NY <- predicted_outputs[predicted_outputs$`s(date):STATENew York` > 0, ]
-NY <- subset(NY, select = c(STATE, sex, `s(date)`, `s(date):STATENew York`, `s(age)`, `s(month)`, predicted, actual))
+# Remove those samples in those states which have less than 5k samples (nrow: 405424)
+filtered_data <- ddply(data, "STATE", function(d) {if(nrow(d)>5000) d else NULL})
 
-# Region-wise plot
+# Subset state-wise samples, get list of states after sample thresholding
+northeast <- subset(filtered_data, STATE %in% northeast_states)
+northeast_states <- names(table(northeast$STATE)[table(northeast$STATE) > 0])
 
-# West: California, Oregon, Washington, Nevada, Idaho, Utah, Arizona, Montana, Alaska, Hawaii
-# 94381 data samples 
-west_coast <- subset(data, STATE %in% c('California', 'Oregon', 'Washington', 'Nevada', 'Idaho', 'Utah', 'Arizona', 'Montana', 'Alaska', 'Hawaii'))
+midwest <- subset(filtered_data, STATE %in% midwest_states)
+midwest_states <- names(table(midwest$STATE)[table(midwest$STATE) > 0])
 
-# East: Michigan, Indiana, Kentucky, Tennessee, Alabama, Ohio, Georgia, Florida, South Carolina, North Carolina, Virginia, West Virginia, Delaware, 
-# Maryland, New Jersey, Pennsylvania, New York, Connecticut, Rhode Island, Massachusetts, Vermont, New Hampshire, Maine
-# 232143 data samples
-east_coast <- subset(data, STATE %in% c('Michigan', 'Indiana', 'Kentucky', 'Tennessee', 'Alabama', 'Ohio', 'Georgia', 'Florida', 'South Carolina', 'North Carolina', 'Virginia', 'West Virginia', 'Delaware', 'Maryland', 'New Jersey', 'Pennsylvania', 'New York', 'Connecticut', 'Rhode Island', 'Massachusetts', 'Vermont', 'New Hampshire', 'Maine'))
+south <- subset(filtered_data, STATE %in% south_states)
+south_states <- names(table(south$STATE)[table(south$STATE) > 0])
 
-# Central: Wyoming, Colorado, New Mexico, North Dakota, South Dakota, Nebraska, Kansas, Oklahoma, Texas, Minnesota, Iowa, Missouri, Arkansas, Louisiana, Wisconsin, Illinois, Mississippi
-# 128173 data samples
-central <- subset(data, STATE %in% c('Wyoming', 'Colorado', 'New Mexico', 'North Dakota', 'South Dakota', 'Nebraska', 'Kansas', 'Oklahoma', 'Texas', 'Minnesota', 'Iowa', 'Missouri', 'Arkansas', 'Louisiana', 'Wisconsin', 'Illinois', 'Mississippi'))
-
+west <- subset(filtered_data, STATE %in% west_states)
+west_states <- names(table(west$STATE)[table(west$STATE) > 0])
 
 # Generate models
-
-west_model <- gam(D_biep.Male_Career_all ~ STATE + s(date) + s(date, by=STATE) + s(age) + s(month, bs = "cc", k = 12) + sex, select=TRUE, method='GCV.Cp', data = west_coast)
-east_model <- gam(D_biep.Male_Career_all ~ STATE + s(date) + s(date, by=STATE) + s(age) + s(month, bs = "cc", k = 12) + sex, select=TRUE, method='GCV.Cp', data = east_coast)
-central_model <- gam(D_biep.Male_Career_all ~ STATE + s(date) + s(date, by=STATE) + s(age) + s(month, bs = "cc", k = 12) + sex, select=TRUE, method='GCV.Cp', data = central)
+northeast_model <- gam(D_biep.Male_Career_all ~ STATE + s(date) + s(date, by=STATE) + s(age) + s(month, bs = "cc", k = 12) + sex, select=TRUE, method='GCV.Cp', data = northeast)
+midwest_model <- gam(D_biep.Male_Career_all ~ STATE + s(date) + s(date, by=STATE) + s(age) + s(month, bs = "cc", k = 12) + sex, select=TRUE, method='GCV.Cp', data = midwest)
+south_model <- gam(D_biep.Male_Career_all ~ STATE + s(date) + s(date, by=STATE) + s(age) + s(month, bs = "cc", k = 12) + sex, select=TRUE, method='GCV.Cp', data = south)
+west_model <- gam(D_biep.Male_Career_all ~ STATE + s(date) + s(date, by=STATE) + s(age) + s(month, bs = "cc", k = 12) + sex, select=TRUE, method='GCV.Cp', data = west)
 
 # state-wise plot
 par(mfrow= c(1,1))
-west_state_wise <- plotGAM(gamFit = west_model, smooth.cov = "date", groupCovs = "STATE", plotCI=F)
-east_state_wise <- plotGAM(gamFit = east_model, smooth.cov = "date", groupCovs = "STATE", plotCI=F)
-central_state_wise <- plotGAM(gamFit = central_model, smooth.cov = "date", groupCovs = "STATE", plotCI=F)
+northeast_statewise_gam <- plotGAM(gamFit = northeast_model, smooth.cov = "date", groupCovs = "STATE", plotCI=F)
+midwest_statewise_gam <- plotGAM(gamFit = midwest_model, smooth.cov = "date", groupCovs = "STATE", plotCI=F)
+south_statewise_gam <- plotGAM(gamFit = south_model, smooth.cov = "date", groupCovs = "STATE", plotCI=F)
+west_statewise_gam <- plotGAM(gamFit = west_model, smooth.cov = "date", groupCovs = "STATE", plotCI=F)
+
+# Get the plot values and store separately for the date-range plot (TODO: can we do better?)
+get_state_fits <- function(statewise_gam, states){
+  rows_per_state <- nrow(statewise_gam$data) / length(states)
+  statewise_gam_data <- statewise_gam$data[1:rows_per_state,]
+
+  for(state in states[1:length(states)]) {
+    fit_for_state <- statewise_gam$data[statewise_gam$data$STATE == state,]["fit"]
+    statewise_gam_data[state] <- fit_for_state
+  }
+  
+  columns_needed <- append(states, "date")
+  result <- statewise_gam_data[columns_needed]
+  result$date <- as.Date(result$date, origin = "2007-01-01")
+  return(result)
+}
+
+northeast_statewise_fits <- get_state_fits(northeast_statewise_gam, northeast_states)
+midwest_statewise_fits <- get_state_fits(midwest_statewise_gam, midwest_states)
+south_statewise_fits <- get_state_fits(south_statewise_gam, south_states)
+west_statewise_fits <- get_state_fits(west_statewise_gam, west_states)
+
+ggplot(data=northeast_statewise_fits, aes(x=date, y=Pennsylvania, group=1)) + geom_line()
+
+
+
+
+
+
+
+####### Plot with correct date labels #########
+model_time_age_sex_month <- gam(D_biep.Male_Career_all ~ s(date) + s(age) + s(month, bs = "cc", k = 12) + sex, select=TRUE, method='GCV.Cp', data = data)
+
+combined_date_plot <- plotGAM(gamFit = model_time_age_sex_month, smooth.cov = "date", groupCovs = NULL, plotCI=F, orderedAsFactor = FALSE)
+
+fitted_dates_scores <- combined_date_plot$data
+fitted_dates_scores$date <- as.Date(fitted_dates_scores$date, origin = "2007-01-01")
+
+ggplot(data=fitted_dates_scores, aes(x=date, y=fit, group=1)) + geom_line()
+
 
