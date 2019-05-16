@@ -28,23 +28,26 @@ update_dates <- function(gam_plot) {
   return(result)
 }
 
+aggregate_scores <- function(data) {
+  iat_score <- aggregate(D_biep.Male_Career_all ~ month + year, data, FUN = mean)
+  iat_score$date <- as.Date(paste(as.character(iat_score$year), as.character(iat_score$month), "01", sep = "-"))
+  return(iat_score)
+}
+
 data = read.csv("/Users/vikramkarthikeyan/Documents/Kenny/IAT-Gender-Career-R/dataset/cleaned-2007-2017.csv", header = TRUE)
 
+# Some pre-processing that wasn't done before. TODO: move to preprocessing file
 data <- data[is.na(data$D_biep.Male_Career_all)==FALSE,,]
-
-data$date <- as.numeric(data$date)
-
-# Convert sex to a numeric value Male=1, Female=2, remove others
-data$sex <- gsub("Male", 1, data$sex)
-data$sex <- gsub("Female", 2, data$sex)
-data$sex <- as.numeric(data$sex)
-data <- data[is.na(data$sex)==FALSE,,]
-
-# Try this instead!
 data <- data[data$sex!=".",]
 data$sex <- factor(data$sex)
 
+# perform the raw date-wise aggregated plot
+aggregated_raw_scores <- aggregate_scores(data)
+aggregated_raw_plot <- ggplot(aggregated_raw_scores, aes(date, D_biep.Male_Career_all, group=1)) + geom_line(size=1) + theme_economist() + ggtitle("Overall RAW Gender-Career bias in the US") +xlab("Date") + ylab("IAT Score")
+ggsave(filename="rawAggregatedScores.png", plot=aggregated_raw_plot)
 
+# Prepare date for GAM
+data$date <- as.numeric(data$date)
 
 ################ Model that compensates for seasonality ################
 # Cyclic cubic spline function to accomodate Dec-Jan smooth transition
