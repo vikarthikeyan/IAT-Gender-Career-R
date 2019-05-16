@@ -5,6 +5,8 @@ install.packages("mgcv", dependencies = TRUE)
 install.packages("nlme", dependencies = TRUE)
 install.packages("voxel", dependencies = TRUE)
 install.packages("plyr", dependencies = TRUE)
+install.packages("reshape", dependencies = TRUE)
+install.packages("ggthemes")
 
 ## Loading required packages
 library(fitdistrplus)
@@ -14,6 +16,17 @@ library(nlme)
 library(ggplot2)
 library(voxel)
 library(plyr)
+library(reshape)
+library(ggthemes)
+
+# Give your local path for saving plots
+setwd("Documents/Kenny/IAT-Gender-Career-R/plots")
+
+update_dates <- function(gam_plot) {
+  result <- gam_plot$data 
+  result$date <- as.Date(result$date, origin = "2007-01-01") 
+  return(result)
+}
 
 data = read.csv("/Users/vikramkarthikeyan/Documents/Kenny/IAT-Gender-Career-R/dataset/cleaned-2007-2017.csv", header = TRUE)
 
@@ -30,21 +43,30 @@ data <- data[is.na(data$sex)==FALSE,,]
 ################ Model that compensates for seasonality ################
 # Cyclic cubic spline function to accomodate Dec-Jan smooth transition
 # 12 knots for 12 months
+####### Overall plot without state filter #########
 model_time_age_sex_month <- gam(D_biep.Male_Career_all ~ s(date) + s(age) + s(month, bs = "cc", k = 12) + sex, select=TRUE, method='GCV.Cp', data = data)
 
-par(mfrow= c(2,1))
-plot(model_time_age_sex_month, scale = 0, shade=TRUE)
+combined_date_plot <- plotGAM(gamFit = model_time_age_sex_month, smooth.cov = "date", groupCovs = NULL, plotCI=F, orderedAsFactor = FALSE)
+
+combined_date_plot <- update_dates(combined_date_plot)
+
+combined_plot <- ggplot(data=combined_date_plot, aes(x=date, y=fit, group=1)) + geom_line(size=1) + theme_economist() + ggtitle("Overall Gender-Career bias in the US") +xlab("Date") + ylab("IAT Score")
+ggsave(filename="OverallNoFilter.png", plot=combined_plot)
 
 ################ Model with state-wise filters for all 50 states + DC ####################
 
 model <- gam(D_biep.Male_Career_all ~ STATE + s(date) + s(date, by=STATE) + s(age) + s(month, bs = "cc", k = 12) + sex, select=TRUE, method='GCV.Cp', data = data)
 
-# Individual plot
+# Individual plots for each category/smooth
 plot(model, shade = TRUE, shade.col = "lightblue", scale = 0)
 
 # state-wise plot
 par(mfrow= c(1,1))
 state_wise_smooth <- plotGAM(gamFit = model, smooth.cov = "date", groupCovs = "STATE", plotCI=F)
+
+state_wise_smooth <- update_dates(state_wise_smooth)
+all_states_plot <- ggplot(state_wise_smooth, aes(x = date, y = fit, colour = group)) + geom_line(size=1) + theme_economist() + ggtitle("US State-wise Gender-Career bias") +xlab("Date") + ylab("IAT Score")
+ggsave(filename="allStates.png", plot=all_states_plot)
 
 ################# Region-wise models based on US census regions ################
 
@@ -82,43 +104,23 @@ midwest_statewise_gam <- plotGAM(gamFit = midwest_model, smooth.cov = "date", gr
 south_statewise_gam <- plotGAM(gamFit = south_model, smooth.cov = "date", groupCovs = "STATE", plotCI=F)
 west_statewise_gam <- plotGAM(gamFit = west_model, smooth.cov = "date", groupCovs = "STATE", plotCI=F)
 
-# Get the plot values and store separately for the date-range plot (TODO: can we do better?)
-get_state_fits <- function(statewise_gam, states){
-  rows_per_state <- nrow(statewise_gam$data) / length(states)
-  statewise_gam_data <- statewise_gam$data[1:rows_per_state,]
+# Update the date numeric to actual dates
+northeast_statewise_gam <- update_dates(northeast_statewise_gam)
+midwest_statewise_gam <- update_dates(midwest_statewise_gam)
+south_statewise_gam <- update_dates(south_statewise_gam)
+west_statewise_gam <- update_dates(west_statewise_gam)
 
-  for(state in states[1:length(states)]) {
-    fit_for_state <- statewise_gam$data[statewise_gam$data$STATE == state,]["fit"]
-    statewise_gam_data[state] <- fit_for_state
-  }
-  
-  columns_needed <- append(states, "date")
-  result <- statewise_gam_data[columns_needed]
-  result$date <- as.Date(result$date, origin = "2007-01-01")
-  return(result)
-}
+# Plot 
+northeast_plot <- ggplot(northeast_statewise_gam, aes(x = date, y = fit, colour = group)) + geom_line(size=1) + theme_economist() + ggtitle("US North-east Region Gender-Career bias") +xlab("Date") + ylab("IAT Score")
+midwest_plot <- ggplot(midwest_statewise_gam, aes(x = date, y = fit, colour = group)) + geom_line(size=1) + theme_economist() + ggtitle("US Midwest Region Gender-Career bias") +xlab("Date") + ylab("IAT Score")
+south_plot <- ggplot(south_statewise_gam, aes(x = date, y = fit, colour = group)) + geom_line(size=1) + theme_economist() + ggtitle("US South Region Gender-Career bias") +xlab("Date") + ylab("IAT Score")
+west_plot <- ggplot(west_statewise_gam, aes(x = date, y = fit, colour = group)) + geom_line(size=1) + theme_economist() + ggtitle("US West Region Gender-Career bias") +xlab("Date") + ylab("IAT Score")
 
-northeast_statewise_fits <- get_state_fits(northeast_statewise_gam, northeast_states)
-midwest_statewise_fits <- get_state_fits(midwest_statewise_gam, midwest_states)
-south_statewise_fits <- get_state_fits(south_statewise_gam, south_states)
-west_statewise_fits <- get_state_fits(west_statewise_gam, west_states)
+ggsave(filename="northeast.png", plot=northeast_plot)
+ggsave(filename="midwest.png", plot=midwest_plot)
+ggsave(filename="south.png", plot=south_plot)
+ggsave(filename="west.png", plot=west_plot)
 
-ggplot(data=northeast_statewise_fits, aes(x=date, y=Pennsylvania, group=1)) + geom_line()
-
-
-
-
-
-
-
-####### Plot with correct date labels #########
-model_time_age_sex_month <- gam(D_biep.Male_Career_all ~ s(date) + s(age) + s(month, bs = "cc", k = 12) + sex, select=TRUE, method='GCV.Cp', data = data)
-
-combined_date_plot <- plotGAM(gamFit = model_time_age_sex_month, smooth.cov = "date", groupCovs = NULL, plotCI=F, orderedAsFactor = FALSE)
-
-fitted_dates_scores <- combined_date_plot$data
-fitted_dates_scores$date <- as.Date(fitted_dates_scores$date, origin = "2007-01-01")
-
-ggplot(data=fitted_dates_scores, aes(x=date, y=fit, group=1)) + geom_line()
+####### Gender-wise model ##########
 
 
