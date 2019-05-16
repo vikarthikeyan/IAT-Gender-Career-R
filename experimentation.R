@@ -40,6 +40,12 @@ data$sex <- gsub("Female", 2, data$sex)
 data$sex <- as.numeric(data$sex)
 data <- data[is.na(data$sex)==FALSE,,]
 
+# Try this instead!
+data <- data[data$sex!=".",]
+data$sex <- factor(data$sex)
+
+
+
 ################ Model that compensates for seasonality ################
 # Cyclic cubic spline function to accomodate Dec-Jan smooth transition
 # 12 knots for 12 months
@@ -123,4 +129,12 @@ ggsave(filename="west.png", plot=west_plot)
 
 ####### Gender-wise model ##########
 
+gender_wise_model <- gam(D_biep.Male_Career_all ~ s(date, by=sex) + s(age) + s(month, bs = "cc", k = 12) + sex, select=TRUE, method='GCV.Cp', data = data)
+gender_wise_plot <- plotGAM(gamFit = gender_wise_model, smooth.cov = "date", groupCovs = "sex", plotCI=F, orderedAsFactor = FALSE)
 
+gender_wise_plot <- update_dates(gender_wise_plot)
+gender_wise_plot <- ggplot(gender_wise_plot, aes(x = date, y = fit, colour = group)) + geom_line(size=1) + theme_economist() + ggtitle("Gender-wise Gender-Career bias") +xlab("Date") + ylab("IAT Score")
+
+ggsave(filename="genderwise.png", plot=gender_wise_plot)
+
+######
