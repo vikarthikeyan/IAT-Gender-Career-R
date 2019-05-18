@@ -23,23 +23,27 @@ iat.2005.2015$date <- as.Date(iat.2005.2015$date)
 # get entries which has dates between 2007 and 2015
 start_date <- as.Date("2007-01-01")  
 end_date <- as.Date("2015-12-31") 
-iat.2007.2015 <- iat.2005.2015[iat.2005.2015$date >= "2007-01-01" & iat.2005.2015$date <= "2015-12-31",]
+iat.2005.2015 <- iat.2005.2015[iat.2005.2015$date >= "2007-01-01" & iat.2005.2015$date <= "2015-12-31",]
 
 # Get only completed entries
-iat.2007.2015 <- iat.2007.2015[iat.2007.2015$session_status=="C   ",] 
+iat.2005.2015 <- iat.2005.2015[iat.2005.2015$session_status=="C   ",] 
 
 # Get only US-born US residents
-iat.2007.2015 <- iat.2007.2015[iat.2007.2015$countryres=="US",]
-iat.2007.2015 <- iat.2007.2015[iat.2007.2015$countrycit=="US",]
+iat.2005.2015 <- iat.2005.2015[iat.2005.2015$countryres=="US",]
+iat.2005.2015 <- iat.2005.2015[iat.2005.2015$countrycit=="US",]
 
 # Remove those entries in which important fields are not present - Age, Race, Ethnicity, Gender
-iat.2007.2015 <- iat.2007.2015[is.na(iat.2007.2015$age)==FALSE,]
-iat.2007.2015 <- iat.2007.2015[is.na(iat.2007.2015$ethnicityomb)==FALSE,]
-iat.2007.2015 <- iat.2007.2015[is.na(iat.2007.2015$raceomb)==FALSE,]
-iat.2007.2015 <- iat.2007.2015[is.na(iat.2007.2015$sex)==FALSE,]
+iat.2005.2015 <- iat.2005.2015[is.na(iat.2005.2015$age)==FALSE,]
+iat.2005.2015 <- iat.2005.2015[is.na(iat.2005.2015$ethnicityomb)==FALSE,]
+iat.2005.2015 <- iat.2005.2015[is.na(iat.2005.2015$raceomb)==FALSE,]
+iat.2005.2015 <- iat.2005.2015[is.na(iat.2005.2015$sex)==FALSE,]
+
+# Get only those entries who submitted their explicit bias
+iat.2005.2015 <- iat.2005.2015[is.na(iat.2005.2015$assocareer)==FALSE,]
+iat.2005.2015 <- iat.2005.2015[is.na(iat.2005.2015$assofamily)==FALSE,]
 
 # Save entries
-write.csv(iat.2007.2015, file = "/Users/vikramkarthikeyan/Documents/Kenny/IAT-Gender-Career-R/dataset/2007-2015.csv")
+write.csv(iat.2005.2015, file = "/Users/vikramkarthikeyan/Documents/Kenny/IAT-Gender-Career-R/dataset/2007-2015.csv")
 
 
 

@@ -25,7 +25,7 @@ clean_data <- function(year) {
   ## to optimize, first reduce the number of variables...
   iat <- iat[c("session_id", "session_status", "date", "year", "month", "day" ,"age", "birthyear",
                  "sex", "birthsex", "genderidentity","D_biep.Male_Career_all", "countrycit", 
-                 "countryres","ethnicityomb",  "raceomb", "raceomb_002", "hour", "STATE")]
+                 "countryres","ethnicityomb",  "raceomb", "raceomb_002", "hour", "STATE", "assofamily", "assocareer")]
   
   iat.population <- aggregate( birthyear ~ month + year , iat , mean )
 
@@ -101,6 +101,9 @@ clean_data <- function(year) {
   iat$age.temp <- as.numeric(iat$age.temp)
   
   iat$age <- iat$age.temp
+  
+  iat <- iat[is.na(iat$assocareer)==FALSE,]
+  iat <- iat[is.na(iat$assofamily)==FALSE,]
  
   return(iat)
 }

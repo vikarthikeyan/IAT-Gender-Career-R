@@ -23,7 +23,7 @@ clean_data <- function(year) {
   ## to optimize, first reduce the number of variables...
   iat <- iat[c("session_id", "session_status", "date", "year", "month", "day", "birthyear",
                  "birthSex", "genderIdentity","D_biep.Male_Career_all", "countrycit_num", 
-                 "countryres_num","ethnicityomb","raceomb_002", "hour")]
+                 "countryres_num","ethnicityomb","raceomb_002", "hour", "assocareer", "assofamily")]
 
   # convert date to ISO format
   iat$date <- as.chron(ISOdate(1582, 10, 14) + iat$date) 
@@ -58,6 +58,9 @@ clean_data <- function(year) {
   table(iat$birthyear) # only uses real year values...
   
   iat$age <- year - iat$birthyear
+  
+  iat <- iat[is.na(iat$assocareer)==FALSE,]
+  iat <- iat[is.na(iat$assofamily)==FALSE,]
   
   return(iat)
 }

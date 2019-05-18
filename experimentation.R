@@ -36,11 +36,6 @@ aggregate_scores <- function(data) {
 
 data = read.csv("/Users/vikramkarthikeyan/Documents/Kenny/IAT-Gender-Career-R/dataset/cleaned-2007-2017.csv", header = TRUE)
 
-# Some pre-processing that wasn't done before. TODO: move to preprocessing file
-data <- data[is.na(data$D_biep.Male_Career_all)==FALSE,,]
-data <- data[data$sex!=".",]
-data$sex <- factor(data$sex)
-
 # perform the raw date-wise aggregated plot
 aggregated_raw_scores <- aggregate_scores(data)
 aggregated_raw_plot <- ggplot(aggregated_raw_scores, aes(date, D_biep.Male_Career_all, group=1)) + geom_line(size=1) + theme_economist() + ggtitle("Overall RAW Gender-Career bias in the US") +xlab("Date") + ylab("IAT Score")

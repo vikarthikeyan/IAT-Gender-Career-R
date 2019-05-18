@@ -43,6 +43,11 @@ iat.2007_2017 <- filter(iat.2007_2017, STATE != "Guam")
 iat.2007_2017 <- filter(iat.2007_2017, STATE != "Puerto Rico")
 iat.2007_2017 <- filter(iat.2007_2017, !grepl('Armed', STATE))
 
+# Some pre-processing that wasn't done before. TODO: move to preprocessing file
+iat.2007_2017 <- iat.2007_2017[is.na(iat.2007_2017$D_biep.Male_Career_all)==FALSE,,]
+iat.2007_2017 <- iat.2007_2017[iat.2007_2017$sex!=".",]
+iat.2007_2017$sex <- factor(iat.2007_2017$sex)
+
 
 write.csv(iat.2007_2017, file = "/Users/vikramkarthikeyan/Documents/Kenny/IAT-Gender-Career-R/dataset/cleaned-2007-2017.csv")
 
