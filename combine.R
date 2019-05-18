@@ -16,7 +16,7 @@ iat.2007_2015 = read.csv("/Users/vikramkarthikeyan/Documents/Kenny/IAT-Gender-Ca
 
 iat.2007_2015 <- iat.2007_2015[c("session_id", "session_status", "date", "year", "month", "day", "age",
              "sex","D_biep.Male_Career_all", "countrycit", 
-             "countryres","ethnicityomb","raceomb", "hour", "STATE")]
+             "countryres","ethnicityomb","raceomb", "hour", "STATE", "assocareer", "assofamily")]
 
 iat.2016 = read.csv("/Users/vikramkarthikeyan/Documents/Kenny/IAT-Gender-Career-R/dataset/2016.csv", header = TRUE)
 iat.2017 = read.csv("/Users/vikramkarthikeyan/Documents/Kenny/IAT-Gender-Career-R/dataset/2017.csv", header = TRUE)
