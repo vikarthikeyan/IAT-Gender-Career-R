@@ -60,14 +60,22 @@ data$date <- as.numeric(data$date)
 # Cyclic cubic spline function to accomodate Dec-Jan smooth transition
 # 12 knots for 12 months
 ####### Overall plot without state filter #########
-model_time_age_sex_month <- gam(explicit_score ~ s(date) + s(age) + s(month, bs = "cc", k = 12) + sex, select=TRUE, method='GCV.Cp', data = data)
+model_time_age_sex_month_exp <- gam(explicit_score ~ s(date) + s(age) + s(month, bs = "cc", k = 12) + sex, select=TRUE, method='GCV.Cp', data = data)
 
-combined_date_plot <- plotGAM(gamFit = model_time_age_sex_month, smooth.cov = "date", groupCovs = NULL, plotCI=F, orderedAsFactor = FALSE)
+combined_date_plot_exp <- plotGAM(gamFit = model_time_age_sex_month_exp, smooth.cov = "date", groupCovs = NULL, plotCI=F, orderedAsFactor = FALSE)
 
-combined_date_plot <- update_dates(combined_date_plot)
+combined_date_plot_exp <- update_dates(combined_date_plot_exp)
 
-combined_plot <- ggplot(data=combined_date_plot, aes(x=date, y=fit, group=1)) + geom_line(size=1) + theme_economist() + ggtitle("Overall Gender-Career bias in the US") +xlab("Date") + ylab("Explicit Bias")
-ggsave(filename="explicit_bias/OverallNoFilter.png", plot=combined_plot)
+combined_plot_exp <- ggplot(data=combined_date_plot_exp, aes(x=date, y=fit, group=1)) + geom_line(size=1) + theme_economist() + ggtitle("Overall Gender-Career bias in the US") +xlab("Date") + ylab("Explicit Bias")
+ggsave(filename="explicit_bias/OverallNoFilter.png", plot=combined_plot_exp)
+
+# test
+
+combined_plot_exp <- ggplot(data=combined_date_plot_exp, aes(x=date, y=fit, group=1, colour=0)) + geom_line(size=1) + 
+  theme_economist() + 
+  ggtitle("Overall Gender-Career bias in the US") +xlab("Date") + 
+  ylab("Biases") + geom_line(data=combined_date_plot, aes(x=date, y=fit, group=1, colour=3), size=1)
+
 
 ################ Model with state-wise filters for all 50 states + DC ####################
 
