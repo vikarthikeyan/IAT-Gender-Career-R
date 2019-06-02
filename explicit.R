@@ -18,9 +18,11 @@ library(voxel)
 library(plyr)
 library(reshape)
 library(ggthemes)
+source("../config.R")
 
-# Give your local path for saving plots
-setwd("Documents/Kenny/IAT-Gender-Career-R/plots")
+# Set local path for portability
+plots_path <- paste(base_path, "plots", sep="")
+setwd(plots_path)
 
 update_dates <- function(gam_plot) {
   result <- gam_plot$data 
@@ -34,7 +36,8 @@ aggregate_scores <- function(data) {
   return(iat_score)
 }
 
-data = read.csv("/Users/vikramkarthikeyan/Documents/Kenny/IAT-Gender-Career-R/dataset/cleaned-2007-2017.csv", header = TRUE)
+data_2007_2017_file <- paste(base_path, "dataset/cleaned-2007-2017.csv", sep="")
+data = read.csv(data_2007_2017_file, header = TRUE)
 
 # Calculate explicit bias
 data$assocareer <- as.numeric(data$assocareer)

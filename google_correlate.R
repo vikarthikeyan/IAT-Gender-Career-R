@@ -9,7 +9,6 @@ install.packages("reshape", dependencies = TRUE)
 install.packages("ggthemes")
 install.packages("xts", dependencies = TRUE)
 
-
 ## Loading required packages
 library(fitdistrplus)
 library(logspline)
@@ -20,10 +19,7 @@ library(plyr)
 library(reshape)
 library(ggthemes)
 library(xts)
-
-
-
-ssetwd("Documents/Kenny/IAT-Gender-Career-R/plots")
+source("../config.R")
 
 aggregate_scores <- function(data) {
   # Get logic to aggregate using weeks
@@ -32,7 +28,8 @@ aggregate_scores <- function(data) {
   return(iat_score)
 }
 
-data = read.csv("/Users/vikramkarthikeyan/Documents/Kenny/IAT-Gender-Career-R/dataset/cleaned-2007-2017.csv", header = TRUE)
+data_2007_2017_file <- paste(base_path, "dataset/cleaned-2007-2017.csv", sep="")
+data = read.csv(data_2007_2017_file, header = TRUE)
 
 aggregated_raw_scores <- aggregate_scores(data)
 
@@ -40,12 +37,10 @@ data <- as.xts(aggregated_raw_scores$D_biep.Male_Career_all,order.by=as.Date(agg
 weekly <- apply.weekly(data,sum)
 weekly <- data.frame(weekly)
 
-write.csv(weekly, file = "/Users/vikramkarthikeyan/Documents/Kenny/IAT-Gender-Career-R/dataset/weekly_2007_2017.csv")
+outfile <- paste(base_path, "dataset/weekly_2007_2017.csv", sep="")
+write.csv(weekly, file = outfile)
 
 weekly$weekly <- -weekly$weekly
-write.csv(weekly, file = "/Users/vikramkarthikeyan/Documents/Kenny/IAT-Gender-Career-R/dataset/inv_weekly_2007_2017.csv")
-
-
-
-
+outfile <- paste(base_path, "dataset/inv_weekly_2007_2017.csv", sep="")
+write.csv(weekly, file = outfile)
 

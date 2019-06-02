@@ -1,19 +1,18 @@
-## Installing required packagesyes
+## Installing required packages
 install.packages("foreign", dependencies = TRUE) # for importing SPSS data
-install.packages("car", dependencies = TRUE) # for recoding functions
 install.packages("chron", dependencies = TRUE) # for changing time information
 install.packages("pastecs", dependencies = TRUE) # for basic descriptives
 install.packages("dplyr", dependencies = TRUE) # for basic descriptives
 
 ## Loading required packages
 require(foreign)
-require(car)
 require(chron)
 require(pastecs)
 library("dplyr")
+source("../config.R")
 
 # Read 2005-2015 IAT data
-iat.2005.2015 <- read.spss("/Users/vikramkarthikeyan/Documents/Kenny/IAT-Gender-Career-R/dataset/sav/Gender-Career IAT.public.2005-2015.sav",
+iat.2005.2015 <- read.spss(paste(base_path, "dataset/sav/Gender-Career IAT.public.2005-2015.sav", sep=""),
                      to.data.frame = TRUE)
 
 # convert date to ISO format
@@ -43,8 +42,5 @@ iat.2005.2015 <- iat.2005.2015[is.na(iat.2005.2015$assocareer)==FALSE,]
 iat.2005.2015 <- iat.2005.2015[is.na(iat.2005.2015$assofamily)==FALSE,]
 
 # Save entries
-write.csv(iat.2005.2015, file = "/Users/vikramkarthikeyan/Documents/Kenny/IAT-Gender-Career-R/dataset/2007-2015.csv")
-
-
-
-
+outfile <- paste(base_path, "dataset/2007-2015.csv", sep="")
+write.csv(iat.2005.2015, file = outfile)

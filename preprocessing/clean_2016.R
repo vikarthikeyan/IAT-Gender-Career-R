@@ -1,20 +1,20 @@
 ## Installing required packagesyes
 install.packages("foreign", dependencies = TRUE) # for importing SPSS data
-install.packages("car", dependencies = TRUE) # for recoding functions
 install.packages("chron", dependencies = TRUE) # for changing time information
 install.packages("pastecs", dependencies = TRUE) # for basic descriptives
 install.packages("dplyr", dependencies = TRUE) # for basic descriptives
 
 ## Loading required packages
 require(foreign)
-require(car)
 require(chron)
 require(pastecs)
 library("dplyr")
+source("../config.R")
 
 clean_data <- function(year) {
-  year=2016
-  file_name <- paste("/Users/vikramkarthikeyan/Documents/Kenny/IAT-Gender-Career-R/dataset/sav/", year, sep="")
+  
+  file_path <- paste(base_path, "dataset/sav/", sep="")
+  file_name <- paste(file_path, year, sep="")
   file_name <- paste(file_name, ".sav", sep="")
   
   
@@ -38,7 +38,6 @@ clean_data <- function(year) {
   
   # First fuse ambiguous columns, god this is painful
   if("sex" %in% colnames(iat) & "birthsex" %in% colnames(iat)) {
-    print("BOTH")
     iat$birthsex <- factor(iat$birthsex, labels = c("Male", "Female"))
     iat$sex <- with(iat, coalesce(sex, factor(birthsex)))
   } else {
@@ -112,7 +111,8 @@ result <- clean_data(2016)
 
 result <- subset(result, select = -c(birthyear, birthsex, genderidentity, age.temp, raceomb_002))
 
-write.csv(result, file = "/Users/vikramkarthikeyan/Documents/Kenny/IAT-Gender-Career-R/dataset/2016.csv")
+outfile <- paste(base_path, "dataset/2016.csv", sep="")
+write.csv(result, file = outfile)
 
 
 

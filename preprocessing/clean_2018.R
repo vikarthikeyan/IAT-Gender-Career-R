@@ -11,9 +11,12 @@ require(car)
 require(chron)
 require(pastecs)
 library("dplyr")
+source("../config.R")
 
 clean_data <- function(year) {
-  file_name <- paste("/Users/vikramkarthikeyan/Documents/Kenny/IAT-Gender-Career-R/dataset/sav/", year, sep="")
+  
+  file_path <- paste(base_path, "dataset/sav/", sep="")
+  file_name <- paste(file_path, year, sep="")
   file_name <- paste(file_name, ".sav", sep="")
   
   # Read IAT data
@@ -72,8 +75,8 @@ colnames(result)[colnames(result)=="raceomb_002"] <- "raceomb"
 
 result <- subset(result, select = -c(birthyear, birthSex, genderIdentity, countrycit_num, countryres_num))
 
-write.csv(result, file = "/Users/vikramkarthikeyan/Documents/Kenny/IAT-Gender-Career-R/dataset/2018.csv")
-
+outfile <- paste(base_path, "dataset/2018.csv", sep="")
+write.csv(result, file = outfile)
 
 
 

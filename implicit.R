@@ -18,9 +18,11 @@ library(voxel)
 library(plyr)
 library(reshape)
 library(ggthemes)
+source("../config.R")
 
-# Give your local path for saving plots
-setwd("Documents/Kenny/IAT-Gender-Career-R/plots")
+# Set local path for portability
+plots_path <- paste(base_path, "plots", sep="")
+setwd(plots_path)
 
 update_dates <- function(gam_plot) {
   result <- gam_plot$data 
@@ -34,12 +36,13 @@ aggregate_scores <- function(data) {
   return(iat_score)
 }
 
-data = read.csv("/Users/vikramkarthikeyan/Documents/Kenny/IAT-Gender-Career-R/dataset/cleaned-2007-2017.csv", header = TRUE)
+data_2007_2017_file <- paste(base_path, "dataset/cleaned-2007-2017.csv", sep="")
+data = read.csv(data_2007_2017_file, header = TRUE)
 
 # perform the raw date-wise aggregated plot
 aggregated_raw_scores <- aggregate_scores(data)
 aggregated_raw_plot <- ggplot(aggregated_raw_scores, aes(date, D_biep.Male_Career_all, group=1)) + geom_line(size=1) + theme_economist() + ggtitle("Overall RAW Gender-Career bias in the US") +xlab("Date") + ylab("IAT Score")
-ggsave(filename="rawAggregatedScores.png", plot=aggregated_raw_plot)
+ggsave(filename="implicit_bias/rawAggregatedScores.png", plot=aggregated_raw_plot)
 
 # Prepare date for GAM
 data$date <- as.numeric(data$date)
@@ -55,7 +58,7 @@ combined_date_plot <- plotGAM(gamFit = model_time_age_sex_month, smooth.cov = "d
 combined_date_plot <- update_dates(combined_date_plot)
 
 combined_plot <- ggplot(data=combined_date_plot, aes(x=date, y=fit, group=1)) + geom_line(size=1) + theme_economist() + ggtitle("Overall Gender-Career bias in the US") +xlab("Date") + ylab("IAT Score")
-ggsave(filename="OverallNoFilter.png", plot=combined_plot)
+ggsave(filename="implicit_bias/OverallNoFilter.png", plot=combined_plot)
 
 ################ Model with state-wise filters for all 50 states + DC ####################
 
@@ -70,7 +73,7 @@ state_wise_smooth <- plotGAM(gamFit = model, smooth.cov = "date", groupCovs = "S
 
 state_wise_smooth <- update_dates(state_wise_smooth)
 all_states_plot <- ggplot(state_wise_smooth, aes(x = date, y = fit, colour = group)) + geom_line(size=1) + theme_economist() + ggtitle("US State-wise Gender-Career bias") +xlab("Date") + ylab("IAT Score")
-ggsave(filename="allStates.png", plot=all_states_plot)
+ggsave(filename="implicit_bias/allStates.png", plot=all_states_plot)
 
 ################# Region-wise models based on US census regions ################
 
@@ -120,10 +123,10 @@ midwest_plot <- ggplot(midwest_statewise_gam, aes(x = date, y = fit, colour = gr
 south_plot <- ggplot(south_statewise_gam, aes(x = date, y = fit, colour = group)) + geom_line(size=1) + theme_economist() + ggtitle("US South Region Gender-Career bias") +xlab("Date") + ylab("IAT Score")
 west_plot <- ggplot(west_statewise_gam, aes(x = date, y = fit, colour = group)) + geom_line(size=1) + theme_economist() + ggtitle("US West Region Gender-Career bias") +xlab("Date") + ylab("IAT Score")
 
-ggsave(filename="northeast.png", plot=northeast_plot)
-ggsave(filename="midwest.png", plot=midwest_plot)
-ggsave(filename="south.png", plot=south_plot)
-ggsave(filename="west.png", plot=west_plot)
+ggsave(filename="implicit_bias/northeast.png", plot=northeast_plot)
+ggsave(filename="implicit_bias/midwest.png", plot=midwest_plot)
+ggsave(filename="implicit_bias/south.png", plot=south_plot)
+ggsave(filename="implicit_bias/west.png", plot=west_plot)
 
 ####### Gender-wise model ##########
 
@@ -133,6 +136,6 @@ gender_wise_plot <- plotGAM(gamFit = gender_wise_model, smooth.cov = "date", gro
 gender_wise_plot <- update_dates(gender_wise_plot)
 gender_wise_plot <- ggplot(gender_wise_plot, aes(x = date, y = fit, colour = group)) + geom_line(size=1) + theme_economist() + ggtitle("Gender-wise Gender-Career bias") +xlab("Date") + ylab("IAT Score")
 
-ggsave(filename="genderwise.png", plot=gender_wise_plot)
+ggsave(filename="implicit_bias/genderwise.png", plot=gender_wise_plot)
 
 ######

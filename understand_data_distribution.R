@@ -10,8 +10,10 @@ library(logspline)
 library(mgcv)
 library(nlme)
 
+# This analysis was simply done to understand the data distribution we'll be dealing with. 
 
-training = read.csv("/Users/vikramkarthikeyan/Documents/Kenny/IAT-Gender-Career-R/dataset/aggregated/training.csv", header = TRUE)
+training_aggregated_data <- paste(base_path, "dataset/aggregated/training.csv", sep="")
+training <- read.csv(training_aggregated_data, header = TRUE)
 
 x <- training$D_biep.Male_Career_all
 
@@ -48,7 +50,6 @@ model2 <- gam(D_biep.Male_Career_all ~ s(date) + s(age), data = training)
 
 layout(matrix(1:2, ncol = 2))
 plot(model2$gam, scale = 0)
-
 
 layout(matrix(1:2, ncol = 2))
 acf(resid(mmodel1$lme), lag.max = 36, main = "ACF")

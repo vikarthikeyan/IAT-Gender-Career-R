@@ -11,15 +11,22 @@ require(car)
 require(chron)
 require(pastecs)
 library("dplyr")
+source("../config.R")
 
-iat.2007_2015 = read.csv("/Users/vikramkarthikeyan/Documents/Kenny/IAT-Gender-Career-R/dataset/2007-2015.csv", header = TRUE)
+data_2007_2015 <- paste(base_path, "dataset/2007-2015.csv", sep="")
+data_2016 <- paste(base_path, "dataset/2016.csv", sep="")
+data_2017 <- paste(base_path, "dataset/2017.csv", sep="")
+
+iat.2007_2015 <- read.csv(data_2007_2015, header = TRUE)
 
 iat.2007_2015 <- iat.2007_2015[c("session_id", "session_status", "date", "year", "month", "day", "age",
              "sex","D_biep.Male_Career_all", "countrycit", 
              "countryres","ethnicityomb","raceomb", "hour", "STATE", "assocareer", "assofamily")]
 
-iat.2016 = read.csv("/Users/vikramkarthikeyan/Documents/Kenny/IAT-Gender-Career-R/dataset/2016.csv", header = TRUE)
-iat.2017 = read.csv("/Users/vikramkarthikeyan/Documents/Kenny/IAT-Gender-Career-R/dataset/2017.csv", header = TRUE)
+iat.2016 = read.csv(data_2016, header = TRUE)
+iat.2017 = read.csv(data_2017, header = TRUE)
+
+# We have not used 2018 data anywhere in this analysis. Might be used to validate predictions later.
 #iat.2018 = read.csv("/Users/vikramkarthikeyan/Documents/Kenny/IAT-Gender-Career-R/dataset/2018.csv", header = TRUE)
 
 iat.2007_2016 <- bind_rows(iat.2007_2015, iat.2016)
@@ -48,8 +55,8 @@ iat.2007_2017 <- iat.2007_2017[is.na(iat.2007_2017$D_biep.Male_Career_all)==FALS
 iat.2007_2017 <- iat.2007_2017[iat.2007_2017$sex!=".",]
 iat.2007_2017$sex <- factor(iat.2007_2017$sex)
 
-
-write.csv(iat.2007_2017, file = "/Users/vikramkarthikeyan/Documents/Kenny/IAT-Gender-Career-R/dataset/cleaned-2007-2017.csv")
+outfile <- paste(base_path, "dataset/cleaned-2007-2017.csv", sep="")
+write.csv(iat.2007_2017, file = outfile)
 
 
 
